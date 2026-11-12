@@ -40,6 +40,15 @@ button:hover{background:var(--green2)}
 .row span{color:var(--muted)}
 .row b{text-align:right}
 .aviso{font:12px/1.5 system-ui,sans-serif;color:var(--muted);margin-top:14px}
+.ind{margin-top:12px;border:2px solid var(--line);border-radius:12px;padding:14px;background:var(--surf)}
+.ind small{display:block;font:13px/1.4 system-ui,sans-serif;color:var(--muted);margin-top:6px}
+.indtop{display:flex;justify-content:space-between;align-items:baseline;font:600 14px system-ui,sans-serif}
+.indtop b{font-size:26px;font-family:Georgia,serif}
+.bar{height:10px;border-radius:6px;background:var(--line);margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--line)}
+.ind.ok{border-color:#2e8b57}.ind.ok .bar i{background:#2e8b57}
+.ind.atencao{border-color:#d9a21b}.ind.atencao .bar i{background:#d9a21b}
+.ind.alto{border-color:#c0392b}.ind.alto .bar i{background:#c0392b}
 @media(max-width:480px){.hero{grid-template-columns:1fr}.hero b{font-size:26px}}
 </style>
 </head>
@@ -55,6 +64,8 @@ button:hover{background:var(--green2)}
 <div><label for="taxa">Taxa de juros (% ao ano)</label><input type="number" id="taxa" value="11.19" step="0.01" min="0" inputmode="decimal"></div>
 <div><label for="prazo">Prazo (meses)</label><input type="number" id="prazo" value="360" min="1" max="480" inputmode="numeric"></div>
 <div><label for="sis">Sistema de amortização</label><select id="sis"><option value="SAC" selected>SAC (parcelas decrescentes)</option><option value="PRICE">Price (parcelas fixas)</option></select></div>
+<div><label for="tipoTaxa">Tipo da taxa</label><select id="tipoTaxa"><option value="NOM" selected>Nominal (÷ 12, como os bancos)</option><option value="EFE">Efetiva (composta)</option></select></div>
+<div><label for="renda">Renda bruta do cliente (R$)</label><input type="number" id="renda" min="0" placeholder="Ex.: 10000" inputmode="decimal"></div>
 </div>
 <div class="opt" id="bFgts"><div class="l"><input type="checkbox" id="cFgts"><label for="cFgts">Cliente vai usar FGTS (soma na entrada)</label></div>
 <div class="sub"><div><label for="fgts">Valor do FGTS (R$)</label><input type="number" id="fgts" value="0" min="0" inputmode="decimal"></div></div></div>
@@ -68,6 +79,7 @@ button:hover{background:var(--green2)}
 <div id="res" aria-live="polite">
 <h2>Resultado</h2>
 <div class="hero"><div><small>1ª parcela</small><b id="r1"></b></div><div><small>Última parcela</small><b id="r2"></b></div></div>
+<div class="ind" id="ind"></div>
 <div class="list" id="lista"></div>
 <p class="aviso">Simulação informativa, sem valor de proposta. Taxa, prazo, ITBI e taxas são estimativas e dependem da análise de crédito de cada instituição. Seguros e tarifas não estão incluídos.</p>
 </div>
@@ -84,14 +96,18 @@ function calc(pv,i,n,s){
 }
 $("go").addEventListener("click",()=>{
   const v=+$("valor").value||0,e=+$("entrada").value||0,uf=$("cFgts").checked,f=uf?(+$("fgts").value||0):0;
-  const n=parseInt($("prazo").value)||0,s=$("sis").value,i=Math.pow(1+(+$("taxa").value||0)/100,1/12)-1;
+  const n=parseInt($("prazo").value)||0,s=$("sis").value,tx=(+$("taxa").value||0)/100,i=$("tipoTaxa").value==="NOM"?tx/12:Math.pow(1+tx,1/12)-1;
   const ent=e+f,fin=Math.max(v-ent,0);
   let ex=0,nx=0;
   if($("cItbi").checked){ex=v*((+$("itbi").value||0)+(+$("taxas").value||0))/100;nx=Math.max(parseInt($("pTx").value)||n,1)}
   const b=calc(fin,i,n,s);let p=b.p,u=b.u,t=b.t;
   if(ex>0){const x=calc(ex,i,nx,s);p+=x.p;t+=x.t;if(nx>=n)u+=x.u}
   $("r1").textContent=brl(p);$("r2").textContent=brl(u);
-  const L=[["Valor financiado do imóvel",brl(fin)],["Entrada total",brl(ent)+(uf&&f>0?" (inclui FGTS)":"")],["Prazo",n+" meses"],["Taxa mensal equivalente",(i*100).toFixed(4).replace(".",",")+"% ao mês"]];
+  const rb=+$("renda").value||0,ind=$("ind");
+  if(rb>0){const c=p/rb*100,cl=c<=25?"ok":c<=30?"atencao":"alto",tt=c<=25?"Confortável":c<=30?"No limite":"Acima do limite usual";
+    ind.className="ind "+cl;ind.innerHTML=`<div class="indtop"><span>Comprometimento da renda</span><b>${c.toFixed(1).replace(".",",")}%</b></div><div class="bar"><i style="width:${Math.min(c,100)}%"></i></div><small>${tt} · 1ª parcela de ${brl(p)} sobre renda bruta de ${brl(rb)}</small>`}
+  else{ind.className="ind";ind.innerHTML="<small>Informe a renda bruta do cliente para ver quanto a parcela compromete.</small>"}
+  const L=[["Valor financiado do imóvel",brl(fin)],["Entrada total",brl(ent)+(uf&&f>0?" (inclui FGTS)":"")],["Prazo",n+" meses"],["Taxa mensal",(i*100).toFixed(4).replace(".",",")+"% ao mês"],["Taxa efetiva anual",((Math.pow(1+i,12)-1)*100).toFixed(2).replace(".",",")+"%"]];
   if(ex>0)L.push(["ITBI e taxas incorporados",brl(ex)+" em "+nx+" parcelas"]);
   L.push(["Total pago em parcelas",brl(t)]);
   $("lista").innerHTML=L.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
