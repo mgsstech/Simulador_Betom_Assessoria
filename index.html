@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Simulador de Financiamento | Betom Assessoria</title>
+<title>Simulador de Financiamento | Betom</title>
 <style>
 :root{--bg:#f4ecdd;--surf:#fffaf1;--ink:#0b2a1e;--muted:#5d6b62;--line:#dccfb0;--green:#0b2a1e;--green2:#14412f;--gold:#c8962a;--onGreen:#f7efdc;--logo:#f8efe7;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#08140f;--surf:#0f241a;--ink:#f1e8d3;--muted:#a3b2a8;--line:#27412f;--green:#d9ad4a;--green2:#e6c067;--gold:#d9ad4a;--onGreen:#0b2a1e;color-scheme:dark}}
@@ -31,7 +31,9 @@ button{margin-top:18px;width:100%;padding:15px;border:0;border-bottom:3px solid 
 button:hover{background:var(--green2)}
 #res{display:none;margin-top:24px}
 #res h2{font-size:18px;margin-bottom:12px}
-.hero{background:#0b2a1e;color:#f7efdc;border-radius:14px;padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:14px;border-bottom:4px solid #c8962a}
+.hero{background:#0b2a1e;color:#f7efdc;border-radius:14px;padding:18px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:14px 16px;border-bottom:4px solid #c8962a}
+.vals{display:grid;gap:14px}
+.nota{font:11px/1.45 system-ui,sans-serif;color:#f7efdc;opacity:.9;border-left:2px solid #c8962a;padding-left:12px;margin:0}
 .hlogo{grid-column:1/-1;border-radius:10px;overflow:hidden}
 .hlogo img{width:100%;max-width:320px;height:auto;display:block;margin:0 auto;border-radius:10px}
 .hero small{display:block;font:13px system-ui,sans-serif;opacity:.8}
@@ -55,7 +57,8 @@ button:hover{background:var(--green2)}
 button.sec{background:transparent;color:var(--ink);border:2px solid var(--gold);border-bottom-width:3px}
 button.sec:hover{background:var(--line)}
 #resIdeal{display:none;margin-top:24px}#resIdeal h2{font-size:18px;margin-bottom:12px}
-@media(max-width:480px){.btns{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.hero b{font-size:26px}}
+@media(max-width:480px){.btns{grid-template-columns:1fr}.hero b{font-size:24px}}
+@media(max-width:340px){.hero{grid-template-columns:1fr}.nota{border-left:0;border-top:2px solid #c8962a;padding:8px 0 0}}
 </style>
 </head>
 <body>
@@ -84,14 +87,14 @@ button.sec:hover{background:var(--line)}
 <div class="btns"><button id="go">Simular</button><button id="goIdeal" class="sec">Imóvel ideal pela renda</button></div>
 <div id="resIdeal" aria-live="polite">
 <h2>Imóvel ideal para este cliente</h2>
-<div class="hero"><div class="hlogo"><img id="hlogo2" alt="Betom Assessoria Financeira"></div><div style="grid-column:1/-1"><small>Valor máximo do imóvel</small><b id="i1"></b></div></div>
+<div class="hero"><div class="hlogo"><img id="hlogo2" alt="Betom Assessoria Financeira"></div><div class="vals"><div><small>Valor máximo do imóvel</small><b id="i1"></b></div></div><p class="nota">Estimativa com base no limite de comprometimento informado</p></div>
 <div class="ind" id="indIdeal"></div>
 <div class="list" id="listaIdeal"></div>
 <p class="aviso">Estimativa com base no limite de comprometimento informado, que costuma ser de 30% da renda bruta na 1ª parcela. A aprovação final depende da análise de crédito de cada banco.</p>
 </div>
 <div id="res" aria-live="polite">
 <h2>Resultado</h2>
-<div class="hero"><div class="hlogo"><img id="hlogo" alt="Betom Assessoria Financeira"></div><div><small>1ª parcela</small><b id="r1"></b></div><div><small>Última parcela</small><b id="r2"></b></div></div>
+<div class="hero"><div class="hlogo"><img id="hlogo" alt="Betom Assessoria Financeira"></div><div class="vals"><div><small>1ª parcela</small><b id="r1"></b></div><div><small>Última parcela</small><b id="r2"></b></div></div><p class="nota">Simulação informativa, sem valor de proposta. Tarifas, prazo, ITBI e taxas são estimativas e dependem da análise de crédito de cada instituição. Seguros e tarifas não estão incluídos.</p></div>
 <div class="ind" id="ind"></div>
 <div class="list" id="lista"></div>
 <p class="aviso">Simulação informativa, sem valor de proposta. Taxa, prazo, ITBI e taxas são estimativas e dependem da análise de crédito de cada instituição. Seguros e tarifas não estão incluídos.</p>
